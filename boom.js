@@ -67,41 +67,30 @@ rtm.on('reaction_added', (event) => {
         return;
       }
 
-      web.team.info().then((response) => {
-        var url = [
-          'https://' + response.team.domain + '.slack.com',
-          '/archives/',
-          event.item.channel,
-          '/p' + String(event.item.ts).replace('.', '')
-        ].join('');
+      var text = [
+        '<@' + sender + '>',
+        ':point_right:',
+        'got put in timeout by',
+        count,
+        'users',
+        '\n',
+        '`' + message + '`'
+      ].join(' ');
 
-        web.users.info({user: sender}).then((userResponse) => {
-          var text = [
-            '<@' + sender + '>',
-            ':point_right:',
-            'got put in timeout by',
-            count,
-            'users',
-            '\n',
-            '`' + message + '`'
-          ].join(' ');
-
-          web.chat.postMessage(
-              {
-                channel: event.item.channel,
-                text: text,
-                icon_emoji: ':' + REACTION_TYPE + ':'
-              }
-          ).then((response) => {
-            setTimeout(() => {
-              if (event.item.channel[0] === 'G') {
-                web.groups.kick({channel: event.item.channel, user: sender}).catch(console.error);
-              } else {
-                web.channels.kick({channel: event.item.channel, user: sender}).catch(console.error);
-              }
-            }, 3000);
-          }).catch(console.error);
-        }).catch(console.error);
+      web.chat.postMessage(
+          {
+            channel: event.item.channel,
+            text: text,
+            icon_emoji: ':' + REACTION_TYPE + ':'
+          }
+      ).then((response) => {
+        setTimeout(() => {
+          if (event.item.channel[0] === 'G') {
+            web.groups.kick({channel: event.item.channel, user: sender}).catch(console.error);
+          } else {
+            web.channels.kick({channel: event.item.channel, user: sender}).catch(console.error);
+          }
+        }, 3000);
       }).catch(console.error);
     }).catch(console.error);
   }
